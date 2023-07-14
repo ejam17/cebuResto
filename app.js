@@ -1,14 +1,12 @@
 let map;
 let service;
 let InfoWindow;
-let apiKey = 'AIzaSyBzTpa_mQx9dUhRJUQ2WUEzxs1nFZizMck';
 let types = [];
 let radius = 5500;
 let searchCenter;
 let baseType = [ 'restaurant' ];
-let targetTypes = [];
-let init = 0;
-let markersArray = [];
+let rectangle;
+let textOverlay;
 var markers = [];
 
 function initMap() {
@@ -18,10 +16,9 @@ function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       zoom: 14,
       center: cebu,
-	  //center: { lat: 44.5452, lng: -78.5389 },
-	  //zoom: 9,
     });
   
+	TxtOverlay.prototype = new google.maps.OverlayView();
 	InfoWindow = new google.maps.InfoWindow();
 	
 	restaurants.forEach(function (restaurant, index) {
@@ -30,6 +27,82 @@ function initMap() {
 	});
 	
 	createTypeList();
+}
+
+function TxtOverlay(pos, txt, cls, map) {
+  // Now initialize all properties.
+  this.pos = pos;
+  this.txt_ = txt;
+  this.cls_ = cls;
+  this.map_ = map;
+
+  // We define a property to hold the image's
+  // div. We'll actually create this div
+  // upon receipt of the add() method so we'll
+  // leave it null for now.
+  this.div_ = null;
+
+  // Explicitly call setMap() on this overlay
+  this.setMap(map);
+}
+
+TxtOverlay.prototype.onAdd = function() {
+  // Create the DIV and set some basic attributes.
+  var div = document.createElement('DIV');
+  div.className = this.cls_;
+  div.innerHTML = this.txt_;
+
+  this.div_ = div;
+  var overlayProjection = this.getProjection();
+  var position = overlayProjection.fromLatLngToDivPixel(this.pos);
+  div.style.left = position.x + 'px';
+  div.style.top = position.y + 'px';
+  div.style.position = 'absolute';
+
+  var panes = this.getPanes();
+  panes.floatPane.appendChild(div);
+}
+TxtOverlay.prototype.draw = function() {
+	var overlayProjection = this.getProjection();
+	var position = overlayProjection.fromLatLngToDivPixel(this.pos);
+	var div = this.div_;
+	div.style.left = position.x + 'px';
+	div.style.top = position.y + 'px';
+	div.style.position = 'absolute';
+  }
+
+TxtOverlay.prototype.onRemove = function() {
+  this.div_.parentNode.removeChild(this.div_);
+  this.div_ = null;
+}
+TxtOverlay.prototype.hide = function() {
+  if (this.div_) {
+	this.div_.style.visibility = "hidden";
+  }
+}
+
+TxtOverlay.prototype.show = function() {
+  if (this.div_) {
+	this.div_.style.visibility = "visible";
+  }
+}
+
+TxtOverlay.prototype.toggle = function() {
+  if (this.div_) {
+	if (this.div_.style.visibility == "hidden") {
+	  this.show();
+	} else {
+	  this.hide();
+	}
+  }
+}
+
+TxtOverlay.prototype.toggleDOM = function() {
+  if (this.getMap()) {
+	this.setMap(null);
+  } else {
+	this.setMap(this.map_);
+  }
 }
 
 function setMarkers(marker) {
@@ -94,59 +167,56 @@ function filter() {
 	});
 }
 
-function searchRadius() {
-	let searchRadius = this.document.getElementById("searchRadius").value;
-    if(event.key === 'Enter') {
-        navigator.geolocation.getCurrentPosition((position) => {
-			const currentLocation = {
-				lat: position.coords.latitude,
-				lng: position.coords.longitude,
-			};
-			  
-			// code here
-			// create bounds (user must provide bounds position user location + square maybe
-			//var bounds = new google.maps.LatLngBounds();
-			//count = 0;
-			//
-			//markers.forEach(function (marker, index) {
-			//	if (bounds.contains(marker.getPosition()) === true) {
-			//		count++;
-			//	}
-			//});
-			//
-			console.log(currentLocation.lng);
-			console.log(parseFloat(currentLocation.lng)+1);
-			map.panTo(currentLocation);
-			const bounds = {			
-				north: parseFloat(currentLocation.lng)+1,
-				south: parseFloat(currentLocation.lng)-1,
-				east: parseFloat(currentLocation.lat)+1,
-				west: parseFloat(currentLocation.lat)-1,
-				//north: 44.599,
-				//south: 44.49,
-				//east: -78.443,
-				//west: -78.649,
-			  };
-			  // Define a rectangle and set its editable property to true.
-			  const rectangle = new google.maps.Rectangle({
-				bounds: bounds,
-				map,
-				editable: true,
-				draggable: true,
-				strokeColor: "#FF0000",
-				strokeOpacity: 0.8,
-				strokeWeight: 2,
-				fillColor: "#FF0000",
-				fillOpacity: 0.35,
-			  });
-			  
-			  // listen to changes
-			  ["bounds_changed", "dragstart", "drag", "dragend"].forEach((eventName) => {
-				rectangle.addListener(eventName, () => {
-				  console.log({ bounds: rectangle.getBounds()?.toJSON(), eventName });
+function searchDimension() {
+	if(event.key === 'Enter') {
+		let searchDimension = this.document.getElementById("searchDimension").value;
+		if (searchDimension != '') {
+			navigator.geolocation.getCurrentPosition((position) => {
+				const currentLocation = {
+					lat: position.coords.latitude,
+					lng: position.coords.longitude,
+				};
+
+				map.panTo(currentLocation);
+				const bounds = {			
+					north: parseFloat(currentLocation.lat)+parseFloat(searchDimension/100),
+					south: parseFloat(currentLocation.lat)-parseFloat(searchDimension/100),
+					east: parseFloat(currentLocation.lng)+parseFloat(searchDimension/100),
+					west: parseFloat(currentLocation.lng)-parseFloat(searchDimension/100),
+				  };
+				// Define a rectangle and set its editable property to true.
+				rectangle = new google.maps.Rectangle({
+					bounds: bounds,
+					map,
+					editable: true,
+					draggable: true,
+					strokeColor: "#FF0000",
+					strokeOpacity: 0.8,
+					strokeWeight: 2,
+					fillColor: "#FF0000",
+					fillOpacity: 0.35,
 				});
-			  });
-		});      
+				
+				// listen to changes
+				["bounds_changed", "dragend"].forEach((eventName) => {
+					rectangle.addListener(eventName, () => {
+						let count = 0;
+						//var bounds = new google.maps.LatLngBounds();
+						markers.forEach(function (marker, index) {
+							if (marker.getMap() != undefined && rectangle.getBounds().contains(marker.getPosition()) === true) {
+								count++;
+							}
+						});
+						customTxt = `<div>Restaurants in area: ${count}</div>`;
+						textOverlay = new TxtOverlay(rectangle.getBounds(), customTxt, "customBox", map);
+						this.document.getElementById("restoCount").innerHTML = "Restaurants in area: "+count;
+					});
+				});
+			});
+		} else {
+			rectangle.setMap(null);
+			textOverlay.setMap(null);
+		}         
     }
 }
 

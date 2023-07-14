@@ -1,7 +1,11 @@
 <html>
 
 <head>
-    <title>Store Locator</title>
+    <title>Cebu Restaurants</title>
+	<script src="stores.json"></script>
+	<!--<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzTpa_mQx9dUhRJUQ2WUEzxs1nFZizMck&libraries=places&callback=initMap">-->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzTpa_mQx9dUhRJUQ2WUEzxs1nFZizMck&libraries=places&callback=initMap"></script>
+    <script src="app.js"></script>
     <style>
         #map {
             height: 100%;
@@ -29,20 +33,10 @@
             padding: 0;
         }
 		
-		.custom-map-control-button {
-		  background-color: #fff;
-		  border: 0;
-		  border-radius: 2px;
-		  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-		  margin: 10px;
-		  padding: 0 0.5em;
-		  font: 400 18px Roboto, Arial, sans-serif;
-		  overflow: hidden;
-		  height: 40px;
-		  cursor: pointer;
-		}
-		.custom-map-control-button:hover {
-		  background: rgb(235, 235, 235);
+		.customBox {
+		  background: yellow;
+		  border: 1px solid black;
+		  position: absolute;
 		}
     </style>
 </head>
@@ -59,14 +53,9 @@
 			</select>
 		</div>
 		<div>
-			Restaurants in Radius<br>
-			<input id='searchRadius' type='input' onkeydown="searchRadius()"/>
+			<p id='restoCount'>Restaurants in area: 0</p><br>
+			<input id='searchDimension' type='input' onkeydown="searchDimension()"/>
 		</div>
 	</div>
-	<script src="stores.json"></script>
-    <script src="app.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzTpa_mQx9dUhRJUQ2WUEzxs1nFZizMck&libraries=places&callback=initMap">
-    </script>
 </body>
-
 </html>
