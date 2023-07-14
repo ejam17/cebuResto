@@ -44,8 +44,10 @@ function initMap() {
 		  this.div_ = document.createElement("div");
 		  this.div_.style.borderStyle = "none";
 		  this.div_.style.borderWidth = "0px";
-		  this.div_.style.position = "absolute";
+		  //this.div_.style.position = "absolute";
 		  const p = document.createElement("p");
+		  p.style.fontSize = "50px";
+		  p.style.color = "red";
 		  p.innerHTML = this.textValue_;
 		  this.div_.appendChild(p);
 		  const panes = this.getPanes();
@@ -218,11 +220,10 @@ function searchDimension() {
 				["bounds_changed", "dragend"].forEach((eventName) => {
 					rectangle.addListener(eventName, () => {
 						let count = 0;
-						//var bounds = new google.maps.LatLngBounds();
 						markers.forEach(function (marker, index) {
 							if (marker.getMap() != undefined && rectangle.getBounds().contains(marker.getPosition()) === true) {
 								count++;
-								overlay.reDraw(bounds, "Restaurants in area: "+count);
+								overlay.reDraw(new google.maps.LatLngBounds(rectangle.getBounds().getNorthEast(), rectangle.getBounds().getSouthWest()), "Restaurants in area: "+count);
 								this.document.getElementById("restoCount").innerHTML = "Restaurants in area: "+count;
 							}
 						});
