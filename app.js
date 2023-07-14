@@ -7,7 +7,8 @@ let searchCenter;
 let baseType = [ 'restaurant' ];
 let rectangle;
 let textOverlay;
-var markers = [];
+let markers = [];
+let overlay;
 
 function initMap() {
 	const cebu = new google.maps.LatLng(10.314205199853188, 123.89325016711014);
@@ -18,7 +19,6 @@ function initMap() {
       center: cebu,
     });
   
-	TxtOverlay.prototype = new google.maps.OverlayView();
 	InfoWindow = new google.maps.InfoWindow();
 	
 	restaurants.forEach(function (restaurant, index) {
@@ -27,82 +27,84 @@ function initMap() {
 	});
 	
 	createTypeList();
-}
+	
+	class USGSOverlay extends google.maps.OverlayView {
+		bounds_;
+		textValue_;
+		div_;
+		
+		constructor(bounds, textVal) {
+		  super();
+		  this.bounds_ = bounds;
+		  this.textValue_ = textVal;
+		  this.div_ = null;
+		}
+		
+		onAdd() {
+		  this.div_ = document.createElement("div");
+		  this.div_.style.borderStyle = "none";
+		  this.div_.style.borderWidth = "0px";
+		  this.div_.style.position = "absolute";
+		  const p = document.createElement("p");
+		  p.innerHTML = this.textValue_;
+		  this.div_.appendChild(p);
+		  const panes = this.getPanes();
+		  panes.overlayLayer.appendChild(this.div_);
+		}
+		
+		draw() {
+		  const overlayProjection = this.getProjection();
+		  const sw = overlayProjection.fromLatLngToDivPixel(
+			this.bounds_.getSouthWest()
+		  );
+		  const ne = overlayProjection.fromLatLngToDivPixel(
+			this.bounds_.getNorthEast()
+		  );
 
-function TxtOverlay(pos, txt, cls, map) {
-  // Now initialize all properties.
-  this.pos = pos;
-  this.txt_ = txt;
-  this.cls_ = cls;
-  this.map_ = map;
-
-  // We define a property to hold the image's
-  // div. We'll actually create this div
-  // upon receipt of the add() method so we'll
-  // leave it null for now.
-  this.div_ = null;
-
-  // Explicitly call setMap() on this overlay
-  this.setMap(map);
-}
-
-TxtOverlay.prototype.onAdd = function() {
-  // Create the DIV and set some basic attributes.
-  var div = document.createElement('DIV');
-  div.className = this.cls_;
-  div.innerHTML = this.txt_;
-
-  this.div_ = div;
-  var overlayProjection = this.getProjection();
-  var position = overlayProjection.fromLatLngToDivPixel(this.pos);
-  div.style.left = position.x + 'px';
-  div.style.top = position.y + 'px';
-  div.style.position = 'absolute';
-
-  var panes = this.getPanes();
-  panes.floatPane.appendChild(div);
-}
-TxtOverlay.prototype.draw = function() {
-	var overlayProjection = this.getProjection();
-	var position = overlayProjection.fromLatLngToDivPixel(this.pos);
-	var div = this.div_;
-	div.style.left = position.x + 'px';
-	div.style.top = position.y + 'px';
-	div.style.position = 'absolute';
-  }
-
-TxtOverlay.prototype.onRemove = function() {
-  this.div_.parentNode.removeChild(this.div_);
-  this.div_ = null;
-}
-TxtOverlay.prototype.hide = function() {
-  if (this.div_) {
-	this.div_.style.visibility = "hidden";
-  }
-}
-
-TxtOverlay.prototype.show = function() {
-  if (this.div_) {
-	this.div_.style.visibility = "visible";
-  }
-}
-
-TxtOverlay.prototype.toggle = function() {
-  if (this.div_) {
-	if (this.div_.style.visibility == "hidden") {
-	  this.show();
-	} else {
-	  this.hide();
+		  if (this.div_) {
+			this.div_.style.left = sw.x + "px";
+			this.div_.style.top = ne.y + "px";
+			this.div_.style.width = ne.x - sw.x + "px";
+			this.div_.style.height = sw.y - ne.y + "px";
+		  }
+		}
+		
+		onRemove() {
+		  if (this.div_) {
+			this.div_.parentNode.removeChild(this.div_);
+			this.div_ = null;
+		  }
+		}
+		
+		reDraw(bounds, textValue) {
+			this.bounds_ = bounds;
+			this.textValue_ = textValue;
+			this.setMap(null);
+			this.setMap(map);
+		}
 	}
-  }
-}
-
-TxtOverlay.prototype.toggleDOM = function() {
-  if (this.getMap()) {
-	this.setMap(null);
-  } else {
-	this.setMap(this.map_);
-  }
+  
+	//navigator.geolocation.getCurrentPosition((position) => {
+	//	const currentLocation = {
+	//		lat: position.coords.latitude,
+	//		lng: position.coords.longitude,
+	//	};
+	//
+	//	map.panTo(currentLocation);
+	//	
+	//	const bounds = new google.maps.LatLngBounds(
+	//		new google.maps.LatLng(parseFloat(currentLocation.lat)-parseFloat(searchDimension/100), parseFloat(currentLocation.lng)-parseFloat(searchDimension/100)),
+	//		new google.maps.LatLng(parseFloat(currentLocation.lat)+parseFloat(searchDimension/100), parseFloat(currentLocation.lng)+parseFloat(searchDimension/100))
+	//	);
+	//	
+	//	//const bounds = new google.maps.LatLngBounds();
+	//	const textString = "sample.jpg"
+	//	
+	//	overlay = new USGSOverlay(bounds, textString);
+	//	overlay.setMap(map);
+	//});
+	
+	overlay = new USGSOverlay(new google.maps.LatLngBounds(), '');
 }
 
 function setMarkers(marker) {
@@ -170,6 +172,15 @@ function filter() {
 function searchDimension() {
 	if(event.key === 'Enter') {
 		let searchDimension = this.document.getElementById("searchDimension").value;
+		
+		if (rectangle != undefined) {
+			rectangle.setMap(null);
+		}
+		
+		if (overlay != undefined) {
+			overlay.setMap(null);
+		}
+		
 		if (searchDimension != '') {
 			navigator.geolocation.getCurrentPosition((position) => {
 				const currentLocation = {
@@ -178,15 +189,21 @@ function searchDimension() {
 				};
 
 				map.panTo(currentLocation);
-				const bounds = {			
-					north: parseFloat(currentLocation.lat)+parseFloat(searchDimension/100),
-					south: parseFloat(currentLocation.lat)-parseFloat(searchDimension/100),
-					east: parseFloat(currentLocation.lng)+parseFloat(searchDimension/100),
-					west: parseFloat(currentLocation.lng)-parseFloat(searchDimension/100),
-				  };
+				//const bounds = {			
+				//	north: parseFloat(currentLocation.lat)+parseFloat(searchDimension/100),
+				//	south: parseFloat(currentLocation.lat)-parseFloat(searchDimension/100),
+				//	east: parseFloat(currentLocation.lng)+parseFloat(searchDimension/100),
+				//	west: parseFloat(currentLocation.lng)-parseFloat(searchDimension/100),
+				//  };
+				  
+				const bounds = new google.maps.LatLngBounds(
+					new google.maps.LatLng(parseFloat(currentLocation.lat)-parseFloat(searchDimension/100), parseFloat(currentLocation.lng)-parseFloat(searchDimension/100)),
+					new google.maps.LatLng(parseFloat(currentLocation.lat)+parseFloat(searchDimension/100), parseFloat(currentLocation.lng)+parseFloat(searchDimension/100))
+				);
+				
 				// Define a rectangle and set its editable property to true.
 				rectangle = new google.maps.Rectangle({
-					bounds: bounds,
+					bounds,
 					map,
 					editable: true,
 					draggable: true,
@@ -205,18 +222,14 @@ function searchDimension() {
 						markers.forEach(function (marker, index) {
 							if (marker.getMap() != undefined && rectangle.getBounds().contains(marker.getPosition()) === true) {
 								count++;
+								overlay.reDraw(bounds, "Restaurants in area: "+count);
+								this.document.getElementById("restoCount").innerHTML = "Restaurants in area: "+count;
 							}
 						});
-						customTxt = `<div>Restaurants in area: ${count}</div>`;
-						textOverlay = new TxtOverlay(rectangle.getBounds(), customTxt, "customBox", map);
-						this.document.getElementById("restoCount").innerHTML = "Restaurants in area: "+count;
 					});
 				});
 			});
-		} else {
-			rectangle.setMap(null);
-			textOverlay.setMap(null);
-		}         
+		}			
     }
 }
 
