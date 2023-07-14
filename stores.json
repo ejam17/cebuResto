@@ -1,0 +1,136 @@
+var restaurants = [{
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.9017164, 10.3177322]
+	},
+
+	"category": ["Lechon"],
+	"name": "House of Lechon",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8938105, 10.3179264]
+	},
+
+	"category": ["Shawarma"],
+	"name": "Shawarma Gourmet",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.899838, 10.321001]
+	},
+
+	"category": ["Spaghetti"],
+	"name": "La Buona Italian Restaurant",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8828584, 10.3219767]
+	},
+
+	"category": ["Sisig"],
+	"name": "Arano's Bar and Restaurant",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.87733, 10.300374]
+	},
+
+	"category": ["Sisig"],
+	"name": "Bon Ami Restaurant and Ktv",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8796061, 10.2929219]
+	},
+
+	"category": ["BBQ"],
+	"name": "Abuhan",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8903217, 10.3132511]
+	},
+
+	"category": ["Shrimps"],
+	"name": "I Love Bucket Shrimps - Capitol",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8869884, 10.3164723]
+	},
+
+	"category": ["Sizzling Pork"],
+	"name": "Lola Eats",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8944715, 10.3131731]
+	},
+
+	"category": ["Sizzling Pork"],
+	"name": "Boosog Restaurant",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.9042511, 10.3129988]
+	},
+
+	"category": ["BBQ"],
+	"name": "The Pig and Palm",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8919049, 10.3231511]
+	},
+
+	"category": ["Steak"],
+	"name": "Acacia Steakhouse",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8963008, 10.3183846]
+	},
+
+	"category": ["Pizza"],
+	"name": "Pukot Kitchen",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8982703, 10.3264402]
+	},
+
+	"category": ["Pizza"],
+	"name": "La Maison Rose - The Pink Restaurant",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8929484, 10.3168263]
+	},
+
+	"category": ["BBQ"],
+	"name": "Charcoal Boy Escario",
+	"visits": 100
+}, {
+	"geometry": {
+		"type": "Point",
+		"coordinates": [123.8897619, 10.308395]
+	},
+
+	"category": ["Phat Pho"],
+	"name": "Little Thai Restaurant",
+	"visits": 100
+}]

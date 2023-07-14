@@ -1,0 +1,72 @@
+<html>
+
+<head>
+    <title>Store Locator</title>
+    <style>
+        #map {
+            height: 100%;
+        }
+        
+		#filter {
+			position: absolute;
+			bottom: 10px;  /* adjust value accordingly */
+			left: 10px;  /* adjust value accordingly */
+		}
+		
+		.dropSheet
+		{
+			color: #FFFFFF;
+			background-color: #000000;
+			background-image: none;
+			opacity: 0.5;
+			filter: alpha(opacity=50);
+		}
+		
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+		
+		.custom-map-control-button {
+		  background-color: #fff;
+		  border: 0;
+		  border-radius: 2px;
+		  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+		  margin: 10px;
+		  padding: 0 0.5em;
+		  font: 400 18px Roboto, Arial, sans-serif;
+		  overflow: hidden;
+		  height: 40px;
+		  cursor: pointer;
+		}
+		.custom-map-control-button:hover {
+		  background: rgb(235, 235, 235);
+		}
+    </style>
+</head>
+
+<body>
+	<!-- The div to hold the map -->
+    <div id="map"></div>
+	<!-- The div to hold the filters -->
+	<div id="filter" class="dropSheet">
+		<div>
+			Restaurant Type<br>
+			<select id="restoFilter" onchange="filter()">
+				<option>All</option>
+			</select>
+		</div>
+		<div>
+			Restaurants in Radius<br>
+			<input id='searchRadius' type='input' onkeydown="searchRadius()"/>
+		</div>
+	</div>
+	<script src="stores.json"></script>
+    <script src="app.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzTpa_mQx9dUhRJUQ2WUEzxs1nFZizMck&libraries=places&callback=initMap">
+    </script>
+</body>
+
+</html>
