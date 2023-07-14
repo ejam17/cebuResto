@@ -44,7 +44,7 @@ function initMap() {
 		  this.div_ = document.createElement("div");
 		  this.div_.style.borderStyle = "none";
 		  this.div_.style.borderWidth = "0px";
-		  //this.div_.style.position = "absolute";
+		  this.div_.style.position = "relative";
 		  const p = document.createElement("p");
 		  p.style.fontSize = "50px";
 		  p.style.color = "red";
@@ -64,8 +64,10 @@ function initMap() {
 		  );
 
 		  if (this.div_) {
-			this.div_.style.left = sw.x + "px";
-			this.div_.style.top = ne.y + "px";
+			//this.div_.style.left = sw.x + "px";
+			//this.div_.style.top = ne.y + "px";
+			this.div_.style.left = ne.x - ((ne.x - sw.x)/2) + "px";
+			this.div_.style.top = sw.y - ((sw.y - ne.y)/2) + "px";
 			this.div_.style.width = ne.x - sw.x + "px";
 			this.div_.style.height = sw.y - ne.y + "px";
 		  }
@@ -224,6 +226,8 @@ function searchDimension() {
 						overlay.textValue_ = count;
 						overlay.setMap(null);
 						overlay.setMap(map);
+					} else if (overlay != undefined && overlay.getMap() != undefined && count == 0) {
+						overlay.setMap(null);
 					}
 				});
 			});
