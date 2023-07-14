@@ -77,13 +77,6 @@ function initMap() {
 			this.div_ = null;
 		  }
 		}
-		
-		reDraw(bounds, textValue) {
-			this.bounds_ = bounds;
-			this.textValue_ = textValue;
-			this.setMap(null);
-			this.setMap(map);
-		}
 	}
   
 	//navigator.geolocation.getCurrentPosition((position) => {
@@ -169,69 +162,83 @@ function filter() {
 			marker.setMap(map);
 		}
 	});
+	
+	if (overlay != undefined && overlay.getMap() != undefined) {
+		overlay.bounds_ = new google.maps.LatLngBounds(rectangle.getBounds().getNorthEast(), rectangle.getBounds().getSouthWest());
+		overlay.textValue_ = countRestaurants();
+		overlay.setMap(null);
+		overlay.setMap(map);
+	}
 }
 
 function searchDimension() {
-	if(event.key === 'Enter') {
-		let searchDimension = this.document.getElementById("searchDimension").value;
-		
-		if (rectangle != undefined) {
-			rectangle.setMap(null);
-		}
-		
-		if (overlay != undefined) {
-			overlay.setMap(null);
-		}
-		
-		if (searchDimension != '') {
-			navigator.geolocation.getCurrentPosition((position) => {
-				const currentLocation = {
-					lat: position.coords.latitude,
-					lng: position.coords.longitude,
-				};
+	let searchDimension = 1; // previously user input
 
-				map.panTo(currentLocation);
-				//const bounds = {			
-				//	north: parseFloat(currentLocation.lat)+parseFloat(searchDimension/100),
-				//	south: parseFloat(currentLocation.lat)-parseFloat(searchDimension/100),
-				//	east: parseFloat(currentLocation.lng)+parseFloat(searchDimension/100),
-				//	west: parseFloat(currentLocation.lng)-parseFloat(searchDimension/100),
-				//  };
-				  
-				const bounds = new google.maps.LatLngBounds(
-					new google.maps.LatLng(parseFloat(currentLocation.lat)-parseFloat(searchDimension/100), parseFloat(currentLocation.lng)-parseFloat(searchDimension/100)),
-					new google.maps.LatLng(parseFloat(currentLocation.lat)+parseFloat(searchDimension/100), parseFloat(currentLocation.lng)+parseFloat(searchDimension/100))
-				);
-				
-				// Define a rectangle and set its editable property to true.
-				rectangle = new google.maps.Rectangle({
-					bounds,
-					map,
-					editable: true,
-					draggable: true,
-					strokeColor: "#FF0000",
-					strokeOpacity: 0.8,
-					strokeWeight: 2,
-					fillColor: "#FF0000",
-					fillOpacity: 0.35,
-				});
-				
-				// listen to changes
-				["bounds_changed", "dragend"].forEach((eventName) => {
-					rectangle.addListener(eventName, () => {
-						let count = 0;
-						markers.forEach(function (marker, index) {
-							if (marker.getMap() != undefined && rectangle.getBounds().contains(marker.getPosition()) === true) {
-								count++;
-								overlay.reDraw(new google.maps.LatLngBounds(rectangle.getBounds().getNorthEast(), rectangle.getBounds().getSouthWest()), "Restaurants in area: "+count);
-								this.document.getElementById("restoCount").innerHTML = "Restaurants in area: "+count;
-							}
-						});
-					});
+	if (rectangle != undefined && rectangle.getMap() != undefined) {
+		rectangle.setMap(null);
+		overlay.setMap(null);
+	} else {
+		navigator.geolocation.getCurrentPosition((position) => {
+			const currentLocation = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude,
+			};
+
+			map.panTo(currentLocation);
+			//const bounds = {			
+			//	north: parseFloat(currentLocation.lat)+parseFloat(searchDimension/100),
+			//	south: parseFloat(currentLocation.lat)-parseFloat(searchDimension/100),
+			//	east: parseFloat(currentLocation.lng)+parseFloat(searchDimension/100),
+			//	west: parseFloat(currentLocation.lng)-parseFloat(searchDimension/100),
+			//  };
+			  
+			const bounds = new google.maps.LatLngBounds(
+				new google.maps.LatLng(parseFloat(currentLocation.lat)-parseFloat(searchDimension/100), parseFloat(currentLocation.lng)-parseFloat(searchDimension/100)),
+				new google.maps.LatLng(parseFloat(currentLocation.lat)+parseFloat(searchDimension/100), parseFloat(currentLocation.lng)+parseFloat(searchDimension/100))
+			);
+			
+			// Define a rectangle and set its editable property to true.
+			rectangle = new google.maps.Rectangle({
+				bounds,
+				map,
+				editable: true,
+				draggable: true,
+				strokeColor: "#FF0000",
+				strokeOpacity: 0.8,
+				strokeWeight: 2,
+				fillColor: "#FF0000",
+				fillOpacity: 0.35,
+			});
+			
+			overlay.bounds_ = bounds;
+			overlay.textValue_ = countRestaurants();
+			overlay.setMap(null);
+			overlay.setMap(map);
+			
+			// listen to changes
+			["bounds_changed", "dragend"].forEach((eventName) => {
+				rectangle.addListener(eventName, () => {
+					let count = countRestaurants();
+					if (count > 0) {
+						overlay.bounds_ = new google.maps.LatLngBounds(rectangle.getBounds().getNorthEast(), rectangle.getBounds().getSouthWest());
+						overlay.textValue_ = count;
+						overlay.setMap(null);
+						overlay.setMap(map);
+					}
 				});
 			});
-		}			
-    }
+		});	
+	}	
+}
+
+function countRestaurants() {
+	let count = 0;
+	markers.forEach(function (marker, index) {
+		if (marker.getMap() != undefined && rectangle.getBounds().contains(marker.getPosition()) === true) {
+			count++;
+		}
+	});
+	return count;
 }
 
 function directions(lat, lng) {
