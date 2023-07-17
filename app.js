@@ -14,7 +14,7 @@ let searchLocationMarker;
 let barChartObject;
 let storeHours = ['9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm'];
 let barColors = ["green"];
-let barChart;
+let barChart = document.getElementById('myChart');
 let directionsService;
 let directionsRenderer;
 
@@ -68,6 +68,10 @@ function initMap() {
 
 			new google.maps.event.trigger( searchLocationMarker, 'click' );
 		}
+	});
+	
+	google.maps.event.addListener(infowindow, 'closeclick', function() {
+	   barChart.style.display = 'none';
 	});
 	
 	restaurants.forEach(function (restaurant, index) {
@@ -131,6 +135,8 @@ function initMap() {
 	}
 
 	overlay = new USGSOverlay(new google.maps.LatLngBounds(), '');
+	
+	barChart.style.display = "none";
 }
 
 function setMarkers(marker) {
@@ -146,7 +152,6 @@ function setMarkers(marker) {
     });
 
     markers.push(markerMap);
-    infowindow = new google.maps.InfoWindow();
 
 	markerMap.addListener("click", () => {
 		const lat = markerMap.position.lat();
@@ -296,11 +301,11 @@ function visited(marketIndex) {
 }
 
 function drawPeakHours(marketIndex) {
+	barChart.style.display = 'block';
 	if (barChartObject) {
 		barChartObject.destroy();
 	}
-	
-	barChart = document.getElementById('myChart');
+
 	barChartObject = new Chart(barChart, {
 	  type: "bar",
 	  data: {
