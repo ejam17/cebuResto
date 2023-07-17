@@ -6,7 +6,8 @@ var restaurants = [{
 
 	"category": ["Lechon"],
 	"name": "House of Lechon",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [5, 10, 15, 40, 35, 30, 16, 10, 5, 15, 40, 35, 30]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -15,7 +16,8 @@ var restaurants = [{
 
 	"category": ["Shawarma"],
 	"name": "Shawarma Gourmet",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 10, 15, 40, 35, 30, 16, 10, 5, 15, 40, 0, 0]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -24,7 +26,8 @@ var restaurants = [{
 
 	"category": ["Spaghetti"],
 	"name": "La Buona Italian Restaurant",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 10, 15, 40, 35, 30, 16, 10, 5, 15, 40, 35, 0]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -33,7 +36,8 @@ var restaurants = [{
 
 	"category": ["Sisig"],
 	"name": "Arano's Bar and Restaurant",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 0, 40, 35, 30, 16, 10, 5, 15, 40, 35, 50]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -42,7 +46,8 @@ var restaurants = [{
 
 	"category": ["Sisig"],
 	"name": "Bon Ami Restaurant and Ktv",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 0, 40, 35, 30, 16, 10, 5, 15, 50, 50, 50]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -51,7 +56,8 @@ var restaurants = [{
 
 	"category": ["BBQ"],
 	"name": "Abuhan",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 0, 40, 35, 30, 16, 10, 5, 15, 50, 50, 50]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -60,7 +66,8 @@ var restaurants = [{
 
 	"category": ["Shrimps"],
 	"name": "I Love Bucket Shrimps - Capitol",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [5, 10, 40, 40, 35, 30, 16, 10, 5, 15, 40, 35, 30]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -69,7 +76,8 @@ var restaurants = [{
 
 	"category": ["Sizzling Pork"],
 	"name": "Lola Eats",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 0, 40, 35, 30, 16, 10, 5, 15, 50, 50, 30]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -78,7 +86,8 @@ var restaurants = [{
 
 	"category": ["Sizzling Pork"],
 	"name": "Boosog Restaurant",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 15, 40, 35, 30, 16, 0, 0, 15, 40, 35, 30]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -87,7 +96,8 @@ var restaurants = [{
 
 	"category": ["BBQ"],
 	"name": "The Pig and Palm",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 15, 40, 35, 30, 16, 0, 0, 0, 40, 35, 30]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -96,7 +106,8 @@ var restaurants = [{
 
 	"category": ["Steak"],
 	"name": "Acacia Steakhouse",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 0, 0, 0, 0, 0, 0, 5, 15, 50, 50, 50]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -105,7 +116,8 @@ var restaurants = [{
 
 	"category": ["Pizza"],
 	"name": "Pukot Kitchen",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 10, 15, 40, 35, 30, 16, 0, 0, 0, 40, 35, 30]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -114,7 +126,8 @@ var restaurants = [{
 
 	"category": ["Pizza"],
 	"name": "La Maison Rose - The Pink Restaurant",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 0, 0, 0, 0, 0, 0, 5, 15, 50, 50, 50]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -123,7 +136,8 @@ var restaurants = [{
 
 	"category": ["BBQ"],
 	"name": "Charcoal Boy Escario",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 0, 30, 20, 10, 0, 0, 5, 15, 50, 50, 50]
 }, {
 	"geometry": {
 		"type": "Point",
@@ -132,5 +146,6 @@ var restaurants = [{
 
 	"category": ["Phat Pho"],
 	"name": "Little Thai Restaurant",
-	"visits": 0
+	"visits": 0,
+	"peakHours": [0, 0, 10, 10, 10, 10, 0, 0, 5, 15, 50, 50, 50]
 }]

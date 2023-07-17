@@ -2,10 +2,7 @@
 
 <head>
     <title>Cebu Restaurants</title>
-	<script src="stores.json"></script>
-	<script src="app.js"></script>
-	<script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzTpa_mQx9dUhRJUQ2WUEzxs1nFZizMck&libraries=places&callback=initMap"></script>
-    <style>
+	<style>
         #map {
             height: 100%;
         }
@@ -19,6 +16,12 @@
 		#drawSearch {
 			position: absolute;
 			top: 180px;  /* adjust value accordingly */
+			left: 10px;  /* adjust value accordingly */
+		}
+		
+		#peakHours {
+			position: absolute;
+			top: 220px;  /* adjust value accordingly */
 			left: 10px;  /* adjust value accordingly */
 		}
 		
@@ -38,10 +41,61 @@
             padding: 0;
 			font-family: Roboto, Arial, sans-serif;
         }
+		
+		.pac-card {
+		  background-color: #fff;
+		  border: 0;
+		  border-radius: 2px;
+		  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+		  margin: 10px;
+		  padding: 0 0.5em;
+		  font: 400 18px Roboto, Arial, sans-serif;
+		  overflow: hidden;
+		  font-family: Roboto;
+		  padding: 0;
+		}
+
+		#pac-container {
+		  padding-bottom: 12px;
+		  margin-right: 12px;
+		}
+
+		.pac-controls {
+		  display: inline-block;
+		  padding: 5px 11px;
+		}
+
+		.pac-controls label {
+		  font-family: Roboto;
+		  font-size: 13px;
+		  font-weight: 300;
+		}
+
+		#pac-input {
+		  background-color: #fff;
+		  font-family: Roboto;
+		  font-size: 15px;
+		  font-weight: 300;
+		  margin-left: 12px;
+		  padding: 0 11px 0 13px;
+		  text-overflow: ellipsis;
+		  width: 400px;
+		}
+
+		#pac-input:focus {
+		  border-color: #4d90fe;
+		}
     </style>
 </head>
 
 <body>
+	<!-- The div to hold search bar -->
+	<input
+		  id="pac-input"
+		  class="controls"
+		  type="text"
+		  placeholder="Search Box"
+    />
 	<!-- The div to hold the map -->
     <div id="map"></div>
 	<!-- The div to hold the filters -->
@@ -53,11 +107,17 @@
 			</select>
 		</div>
 	</div>
-	
+	<!-- The div to hold draw rectangle button -->
 	<div id="drawSearch">
 		<div>
 			<input id='searchDimension' type='button' value="Draw to Count Restaurant" onclick="searchDimension()"/>
 		</div>
 	</div>
+	
+	<div id="peakHours"><canvas id="myChart"></canvas></div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="stores.json"></script>
+<script src="app.js"></script>
+<script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzTpa_mQx9dUhRJUQ2WUEzxs1nFZizMck&libraries=places&callback=initMap"></script>    
 </html>

@@ -11,6 +11,12 @@ let markers = [];
 let overlay;
 let infowindow;
 let searchLocationMarker;
+let barChartObject;
+let storeHours = ['9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm'];
+let barColors = ["green"];
+let barChart;
+let directionsService;
+let directionsRenderer;
 
 function initMap() {
 	const cebu = new google.maps.LatLng(10.314205199853188, 123.89325016711014);
@@ -21,8 +27,10 @@ function initMap() {
       center: cebu,
     });
   
-	InfoWindow = new google.maps.InfoWindow();
-	
+	infowindow = new google.maps.InfoWindow();
+	directionsService = new google.maps.DirectionsService();
+	directionsRenderer = new google.maps.DirectionsRenderer();
+
 	// Create the search box and link it to the UI element.
 	const input = document.getElementById("pac-input");
 	const searchBox = new google.maps.places.SearchBox(input);
@@ -40,7 +48,6 @@ function initMap() {
 		}
 
 		const places = searchBox.getPlaces();
-		console.log(places.length);
 		if (places.length == 0) {
 		  alert("No results found in search");
 		} else if (places.length > 1) {
@@ -128,19 +135,14 @@ function initMap() {
 
 function setMarkers(marker) {
     var markerMap = marker.geometry.coordinates;
-    var visit = marker.visits;
-    var category = marker.category;
-    var name = marker.name;
-    var pos = new google.maps.LatLng(markerMap[1], markerMap[0]);
-    var content = marker;
-
     markerMap = new google.maps.Marker({
-        position: pos,
-        name: name,
-		visit: visit,
-		type: category,
+        position: new google.maps.LatLng(markerMap[1], markerMap[0]),
+        name: marker.name,
+		visit: marker.visits,
+		type: marker.category,
+		peakHours: marker.peakHours,
         map: map,
-		index: markers.length
+		index: markers.length,
     });
 
     markers.push(markerMap);
@@ -157,10 +159,10 @@ function setMarkers(marker) {
 		<input type="button" value="Visited" onClick="visited(${markerMap.index})"/>
 		`;
 		
-	    infowindow.setContent(divContent);
+		infowindow.setContent(divContent);
 	    infowindow.open(map, markerMap);
 	    map.panTo(markerMap.getPosition());
-		drawPeakHours();
+		drawPeakHours(markerMap.index);
 	});
 }
 
@@ -257,29 +259,34 @@ function countRestaurants() {
 }
 
 function directions(lat, lng) {
-	const startLocation = {
-		lat: searchLocationMarker.getPosition().lat(),
-		lng: searchLocationMarker.getPosition().lng(),
-	};
-	  
-	const endLocation = {
-		lat: lat, 
-		lng: lng
-	}
-
-	const directionsService = new google.maps.DirectionsService();
-	const directionsRenderer = new google.maps.DirectionsRenderer();
-
-	directionsService.route({
-		origin: startLocation,
-		destination: endLocation,
-		travelMode: google.maps.TravelMode.DRIVING
-	}, function(response, status) {
-		if (status === google.maps.DirectionsStatus.OK) {
-			directionsRenderer.setDirections(response);
-			directionsRenderer.setMap(map);
+	
+	if (searchLocationMarker && searchLocationMarker.getMap() != null) {
+		const startLocation = {
+			lat: searchLocationMarker.getPosition().lat(),
+			lng: searchLocationMarker.getPosition().lng(),
+		};
+		  
+		const endLocation = {
+			lat: lat, 
+			lng: lng
 		}
-	});
+
+		directionsService.route({
+			origin: startLocation,
+			destination: endLocation,
+			travelMode: google.maps.TravelMode.DRIVING
+		}, function(response, status) {
+			if (status === google.maps.DirectionsStatus.OK) {
+				directionsRenderer.setDirections(response);
+				directionsRenderer.setMap(map);
+			} else if (status === "ZERO_RESULTS") {
+				console.clear();
+				alert('No Routes Found');
+			}
+		});
+	} else {
+		alert("No source address");
+	}
 }
 
 function visited(marketIndex) {
@@ -288,27 +295,38 @@ function visited(marketIndex) {
 	new google.maps.event.trigger( markers[marketIndex], 'click' );
 }
 
-function drawPeakHours() {
-	var xValues = [9,10,11,12,13,14,15,16,17,18];
-	var yValues = [55, 49, 44, 24, 15];
-	var barColors = ["lightblue", "lightblue", "lightblue", "lightblue"];
-
-	const barChart = document.getElementById('myChart');
-	new Chart(barChart, {
+function drawPeakHours(marketIndex) {
+	if (barChartObject) {
+		barChartObject.destroy();
+	}
+	
+	barChart = document.getElementById('myChart');
+	barChartObject = new Chart(barChart, {
 	  type: "bar",
 	  data: {
-		labels: xValues,
+		labels: storeHours,
 		datasets: [{
+		  label: 'Peak Hours',
 		  backgroundColor: barColors,
-		  data: yValues
+		  data: markers[marketIndex].peakHours
 		}]
 	  },
 	  options: {
-		legend: {display: false},
-		title: {
-		  display: true,
-		  text: "Peak Hours"
-		}
+		scales: {
+		  x: {
+			grid: {
+			  color: 'black',
+			  display: false
+			}
+		  },
+		  y: {
+			grid: {
+			color: 'black',
+			  display: false
+			}
+		  }
+		},
+		legend: {display: false}
 	  }
 	});
 }
