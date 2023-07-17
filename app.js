@@ -10,6 +10,7 @@ let textOverlay;
 let markers = [];
 let overlay;
 let infowindow;
+let searchLocationMarker;
 
 function initMap() {
 	const cebu = new google.maps.LatLng(10.314205199853188, 123.89325016711014);
@@ -21,6 +22,46 @@ function initMap() {
     });
   
 	InfoWindow = new google.maps.InfoWindow();
+	
+	// Create the search box and link it to the UI element.
+	const input = document.getElementById("pac-input");
+	const searchBox = new google.maps.places.SearchBox(input);
+
+	map.controls[google.maps.ControlPosition.TOP_CENTER].push(input);
+	// Bias the SearchBox results towards current map's viewport.
+	map.addListener("bounds_changed", () => {
+		searchBox.setBounds(map.getBounds());
+	});
+	
+	searchBox.addListener("places_changed", () => {
+		// clear old location
+		if (searchLocationMarker) {
+			searchLocationMarker.setMap(null);
+		}
+
+		const places = searchBox.getPlaces();
+		console.log(places.length);
+		if (places.length == 0) {
+		  alert("No results found in search");
+		} else if (places.length > 1) {
+			alert("Please select only one location from search");
+		} else {
+			// Create new marker if searched location matches 1 item
+			searchLocationMarker = new google.maps.Marker({
+			  map,
+			  name: places[0].name,
+			  position: places[0].geometry.location,
+			});
+			
+			searchLocationMarker.addListener("click", () => {
+				infowindow.setContent(`<h2>Searched Location</h2><p><b>${searchLocationMarker.name}</b></p>`);
+				infowindow.open(map, searchLocationMarker);
+				map.panTo(searchLocationMarker.getPosition());
+			});
+
+			new google.maps.event.trigger( searchLocationMarker, 'click' );
+		}
+	});
 	
 	restaurants.forEach(function (restaurant, index) {
 		setMarkers(restaurant);
@@ -81,27 +122,7 @@ function initMap() {
 		  }
 		}
 	}
-  
-	//navigator.geolocation.getCurrentPosition((position) => {
-	//	const currentLocation = {
-	//		lat: position.coords.latitude,
-	//		lng: position.coords.longitude,
-	//	};
-	//
-	//	map.panTo(currentLocation);
-	//	
-	//	const bounds = new google.maps.LatLngBounds(
-	//		new google.maps.LatLng(parseFloat(currentLocation.lat)-parseFloat(searchDimension/100), parseFloat(currentLocation.lng)-parseFloat(searchDimension/100)),
-	//		new google.maps.LatLng(parseFloat(currentLocation.lat)+parseFloat(searchDimension/100), parseFloat(currentLocation.lng)+parseFloat(searchDimension/100))
-	//	);
-	//	
-	//	//const bounds = new google.maps.LatLngBounds();
-	//	const textString = "sample.jpg"
-	//	
-	//	overlay = new USGSOverlay(bounds, textString);
-	//	overlay.setMap(map);
-	//});
-	
+
 	overlay = new USGSOverlay(new google.maps.LatLngBounds(), '');
 }
 
@@ -135,9 +156,11 @@ function setMarkers(marker) {
 		<input type="button" value="Directions" onClick="directions(${lat}, ${lng})"/>
 		<input type="button" value="Visited" onClick="visited(${markerMap.index})"/>
 		`;
-           infowindow.setContent(divContent);
-           infowindow.open(map, markerMap);
-           map.panTo(markerMap.getPosition());
+		
+	    infowindow.setContent(divContent);
+	    infowindow.open(map, markerMap);
+	    map.panTo(markerMap.getPosition());
+		drawPeakHours();
 	});
 }
 
@@ -178,58 +201,48 @@ function searchDimension() {
 		rectangle.setMap(null);
 		overlay.setMap(null);
 	} else {
-		navigator.geolocation.getCurrentPosition((position) => {
-			const currentLocation = {
-				lat: position.coords.latitude,
-				lng: position.coords.longitude,
-			};
+		const currentLocation = {
+			lat: map.getCenter().lat(),
+			lng: map.getCenter().lng(),
+		};
 
-			map.panTo(currentLocation);
-			//const bounds = {			
-			//	north: parseFloat(currentLocation.lat)+parseFloat(searchDimension/100),
-			//	south: parseFloat(currentLocation.lat)-parseFloat(searchDimension/100),
-			//	east: parseFloat(currentLocation.lng)+parseFloat(searchDimension/100),
-			//	west: parseFloat(currentLocation.lng)-parseFloat(searchDimension/100),
-			//  };
-			  
-			const bounds = new google.maps.LatLngBounds(
-				new google.maps.LatLng(parseFloat(currentLocation.lat)-parseFloat(searchDimension/100), parseFloat(currentLocation.lng)-parseFloat(searchDimension/100)),
-				new google.maps.LatLng(parseFloat(currentLocation.lat)+parseFloat(searchDimension/100), parseFloat(currentLocation.lng)+parseFloat(searchDimension/100))
-			);
-			
-			// Define a rectangle and set its editable property to true.
-			rectangle = new google.maps.Rectangle({
-				bounds,
-				map,
-				editable: true,
-				draggable: true,
-				strokeColor: "#FF0000",
-				strokeOpacity: 0.8,
-				strokeWeight: 2,
-				fillColor: "#FF0000",
-				fillOpacity: 0.35,
+		const bounds = new google.maps.LatLngBounds(
+			new google.maps.LatLng(parseFloat(currentLocation.lat)-parseFloat(searchDimension/100), parseFloat(currentLocation.lng)-parseFloat(searchDimension/100)),
+			new google.maps.LatLng(parseFloat(currentLocation.lat)+parseFloat(searchDimension/100), parseFloat(currentLocation.lng)+parseFloat(searchDimension/100))
+		);
+		
+		// Define a rectangle and set its editable property to true.
+		rectangle = new google.maps.Rectangle({
+			bounds,
+			map,
+			editable: true,
+			draggable: true,
+			strokeColor: "#FF0000",
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: "#FF0000",
+			fillOpacity: 0.35,
+		});
+		
+		overlay.bounds_ = bounds;
+		overlay.textValue_ = countRestaurants();
+		overlay.setMap(null);
+		overlay.setMap(map);
+		
+		// listen to changes
+		["bounds_changed", "dragend"].forEach((eventName) => {
+			rectangle.addListener(eventName, () => {
+				let count = countRestaurants();
+				if (count > 0) {
+					overlay.bounds_ = new google.maps.LatLngBounds(rectangle.getBounds().getNorthEast(), rectangle.getBounds().getSouthWest());
+					overlay.textValue_ = count;
+					overlay.setMap(null);
+					overlay.setMap(map);
+				} else if (overlay != undefined && overlay.getMap() != undefined && count == 0) {
+					overlay.setMap(null);
+				}
 			});
-			
-			overlay.bounds_ = bounds;
-			overlay.textValue_ = countRestaurants();
-			overlay.setMap(null);
-			overlay.setMap(map);
-			
-			// listen to changes
-			["bounds_changed", "dragend"].forEach((eventName) => {
-				rectangle.addListener(eventName, () => {
-					let count = countRestaurants();
-					if (count > 0) {
-						overlay.bounds_ = new google.maps.LatLngBounds(rectangle.getBounds().getNorthEast(), rectangle.getBounds().getSouthWest());
-						overlay.textValue_ = count;
-						overlay.setMap(null);
-						overlay.setMap(map);
-					} else if (overlay != undefined && overlay.getMap() != undefined && count == 0) {
-						overlay.setMap(null);
-					}
-				});
-			});
-		});	
+		});
 	}	
 }
 
@@ -244,30 +257,28 @@ function countRestaurants() {
 }
 
 function directions(lat, lng) {
-	navigator.geolocation.getCurrentPosition((position) => {
-		const startLocation = {
-			lat: position.coords.latitude,
-			lng: position.coords.longitude,
-		};
-		  
-		const endLocation = {
-			lat: lat, 
-			lng: lng
-		}
-	
-		const directionsService = new google.maps.DirectionsService();
-		const directionsRenderer = new google.maps.DirectionsRenderer();
+	const startLocation = {
+		lat: searchLocationMarker.getPosition().lat(),
+		lng: searchLocationMarker.getPosition().lng(),
+	};
+	  
+	const endLocation = {
+		lat: lat, 
+		lng: lng
+	}
 
-		directionsService.route({
-			origin: startLocation,
-			destination: endLocation,
-			travelMode: google.maps.TravelMode.DRIVING
-		}, function(response, status) {
-			if (status === google.maps.DirectionsStatus.OK) {
-				directionsRenderer.setDirections(response);
-				directionsRenderer.setMap(map);
-			}
-		})
+	const directionsService = new google.maps.DirectionsService();
+	const directionsRenderer = new google.maps.DirectionsRenderer();
+
+	directionsService.route({
+		origin: startLocation,
+		destination: endLocation,
+		travelMode: google.maps.TravelMode.DRIVING
+	}, function(response, status) {
+		if (status === google.maps.DirectionsStatus.OK) {
+			directionsRenderer.setDirections(response);
+			directionsRenderer.setMap(map);
+		}
 	});
 }
 
@@ -275,4 +286,29 @@ function visited(marketIndex) {
 	markers[marketIndex].visit += 1;
 	infowindow.close();
 	new google.maps.event.trigger( markers[marketIndex], 'click' );
+}
+
+function drawPeakHours() {
+	var xValues = [9,10,11,12,13,14,15,16,17,18];
+	var yValues = [55, 49, 44, 24, 15];
+	var barColors = ["lightblue", "lightblue", "lightblue", "lightblue"];
+
+	const barChart = document.getElementById('myChart');
+	new Chart(barChart, {
+	  type: "bar",
+	  data: {
+		labels: xValues,
+		datasets: [{
+		  backgroundColor: barColors,
+		  data: yValues
+		}]
+	  },
+	  options: {
+		legend: {display: false},
+		title: {
+		  display: true,
+		  text: "Peak Hours"
+		}
+	  }
+	});
 }
