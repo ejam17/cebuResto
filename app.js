@@ -48,7 +48,7 @@ function initMap() {
 		  this.div_.style.position = "relative";
 		  const p = document.createElement("p");
 		  p.style.fontSize = "50px";
-		  p.style.color = "yellow";
+		  p.style.color = "blue";
 		  p.innerHTML = this.textValue_;
 		  this.div_.appendChild(p);
 		  const panes = this.getPanes();
