@@ -12,17 +12,23 @@
         
 		#filter {
 			position: absolute;
-			bottom: 30px;  /* adjust value accordingly */
+			top: 100px;  /* adjust value accordingly */
+			left: 10px;  /* adjust value accordingly */
+		}
+		
+		#drawSearch {
+			position: absolute;
+			top: 180px;  /* adjust value accordingly */
 			left: 10px;  /* adjust value accordingly */
 		}
 		
 		.dropSheet
 		{
-			color: #FFFFFF;
-			background-color: #000000;
+			color: #000000;
+			background-color: #FFFFFF;
 			background-image: none;
-			opacity: 0.5;
-			filter: alpha(opacity=50);
+			border-color: gray;
+			padding: 17px;
 		}
 		
         html,
@@ -30,6 +36,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+			font-family: Roboto, Arial, sans-serif;
         }
     </style>
 </head>
@@ -40,13 +47,16 @@
 	<!-- The div to hold the filters -->
 	<div id="filter" class="dropSheet">
 		<div>
-			Restaurant Type<br>
+			Filter Type:
 			<select id="restoFilter" onchange="filter()">
 				<option>All</option>
 			</select>
 		</div>
+	</div>
+	
+	<div id="drawSearch">
 		<div>
-			<input id='searchDimension' type='button' value="Search Restaurant Panel" onclick="searchDimension()"/>
+			<input id='searchDimension' type='button' value="Draw to Count Restaurant" onclick="searchDimension()"/>
 		</div>
 	</div>
 </body>

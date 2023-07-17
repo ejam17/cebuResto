@@ -9,6 +9,7 @@ let rectangle;
 let textOverlay;
 let markers = [];
 let overlay;
+let infowindow;
 
 function initMap() {
 	const cebu = new google.maps.LatLng(10.314205199853188, 123.89325016711014);
@@ -47,7 +48,7 @@ function initMap() {
 		  this.div_.style.position = "relative";
 		  const p = document.createElement("p");
 		  p.style.fontSize = "50px";
-		  p.style.color = "red";
+		  p.style.color = "yellow";
 		  p.innerHTML = this.textValue_;
 		  this.div_.appendChild(p);
 		  const panes = this.getPanes();
@@ -117,30 +118,27 @@ function setMarkers(marker) {
         name: name,
 		visit: visit,
 		type: category,
-        map: map
+        map: map,
+		index: markers.length
     });
 
     markers.push(markerMap);
+    infowindow = new google.maps.InfoWindow();
 
-    var infowindow = new google.maps.InfoWindow();    
-
-    // Marker click listener
-    google.maps.event.addListener(markerMap, 'click', (function (marker1, content) {
-        return function () {
-			const lat = marker1.position.lat();
-			const lng = marker1.position.lng();
-			const content = `
-			<h2>${name}</h2>
-			<p><b>Specialty:</b> ${category}</p>
-			<p><b>Visits:</b> ${visit}<br/></p>
-			<input type="button" value="Directions" onClick="directions(${lat}, ${lng})"/>
-			<input type="button" value="Visited" onClick="visited()"/>
-			`;
-            infowindow.setContent(content);
-            infowindow.open(map, markerMap);
-            map.panTo(this.getPosition());
-        }
-    })(markerMap, content));
+	markerMap.addListener("click", () => {
+		const lat = markerMap.position.lat();
+		const lng = markerMap.position.lng();
+		const divContent = `
+		<h2>${markerMap.name}</h2>
+		<p><b>Specialty:</b> ${markerMap.type}</p>
+		<p><b>Visits:</b> ${markerMap.visit}<br/></p>
+		<input type="button" value="Directions" onClick="directions(${lat}, ${lng})"/>
+		<input type="button" value="Visited" onClick="visited(${markerMap.index})"/>
+		`;
+           infowindow.setContent(divContent);
+           infowindow.open(map, markerMap);
+           map.panTo(markerMap.getPosition());
+	});
 }
 
 function createTypeList() {
@@ -273,6 +271,8 @@ function directions(lat, lng) {
 	});
 }
 
-function visited() {
-	alert('visited');
+function visited(marketIndex) {
+	markers[marketIndex].visit += 1;
+	infowindow.close();
+	new google.maps.event.trigger( markers[marketIndex], 'click' );
 }
