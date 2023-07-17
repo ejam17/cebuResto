@@ -325,6 +325,9 @@ function drawPeakHours(marketIndex) {
 			}
 		  },
 		  y: {
+		  ticks: {
+				display: false
+			},
 			grid: {
 			color: 'black',
 			  display: false
